@@ -1,0 +1,162 @@
+﻿@*@model IEnumerable<Identity.Models.SubCategory>
+
+@{
+    ViewData["Title"] = "SubCategoryList";
+}
+
+<h1>SubCategoryList</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create</a>
+
+
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.SubCategoryName).ToString().ToUpper()
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.createdOn).ToString().ToUpper()
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CategoryName).ToString().ToUpper()
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.SubCategoryName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.createdOn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CategoryName)
+            </td>
+            
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.SubCategoryId" class="btn btn-primary">Edit</a>
+
+                    <a asp-action="Delete" asp-route-id="@item.SubCategoryId" class="btn btn-danger">Delete</a>
+                </td>
+            
+        </tr>
+}
+    </tbody>
+</table>
+*@
+@using Identity.Controllers
+@model ViewModel
+@{
+    ViewBag.Title = "SubCategoryList";
+    string currentfilter = ViewData["currentfilter"] as string;
+}
+
+<div class="text-center">
+    <h2 class=" mt-4 mb-4">Category Details</h2>
+</div>
+<nav class="navbar ">
+    <div class="container-fluid">
+        <a class="btn btn-primary" asp-area="" asp-controller="SubCategory" asp-action="Create">Add Category</a>
+        @using (Html.BeginForm("SubCategoryList", "SubCategory"))
+        {
+            <p class="d-flex">
+                @Html.TextBox("SearchString", "", new { @placeholder = "Search", @class = "form-control" })
+                <input type="submit" value="Search" class="btn btn-outline-success ms-2 " />
+            </p>
+        }
+    </div>
+</nav>
+
+<div class="col-1 my-2 d-flex">
+    <b>Show: </b>
+    <select class="form-select" id="PageSize" style="height:32px; width:80px" required>
+        <option value="">8</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+        <option value="25">25</option>
+    </select>
+    <b> Entities</b>
+
+</div>
+<table class="table " id="MyDataTable">
+    <tr>
+        <th>Id</th>
+        <th>
+            @Html.ActionLink("SubCategoryName", "Index", new { sortOrder = ViewBag.NameSortParm, pageSize = ViewData["Pagesize"], searchString = @currentfilter }, new { @class = "text-dark text-decoration-none" })
+            &varr;
+        </th>
+        <th>
+            @Html.ActionLink("CreatedOn", "Index", new { sortOrder = ViewBag.DateSortParm, pageSize = ViewData["Pagesize"], searchString = @currentfilter }, new { @class = "text-dark text-decoration-none" })
+            &varr;
+        </th>
+        <th>
+            @Html.ActionLink("CategoryName", "Index", new { sortOrder = ViewBag.NameSortParm, pageSize = ViewData["Pagesize"], searchString = @currentfilter }, new { @class = "text-dark text-decoration-none" })
+            &varr;
+        </th>
+        <th>Action</th>
+    </tr>
+
+    @foreach (var item in Model.SubCategory)
+    {
+        <tr>
+            <th> @item.SubCategoryId</th>
+            <td>
+                @item.SubCategoryName
+            </td>
+            <td>
+                @item.Category.CategoryName
+            </td>
+            
+           @* <td>@item.CategoryName</td>*@
+            <td>
+                <a class="btn btn-warning" asp-area="" asp-controller="SubCategory" asp-route-Id="@item.SubCategoryId" asp-action="Edit">Update</a>
+                <a class="btn btn-danger" asp-area="" asp-controller="SubCategory" asp-route-Id="@item.SubCategoryId" asp-action="Delete">Delete</a>
+            </td>
+        </tr>
+    }
+</table>
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center align-bottom">
+        @for (int i = 1; i <= Model.totalPage; i++)
+        {
+            string name = i.ToString();
+            <li class="page-item">
+                @Html.ActionLink(name, "Index", new { pageNumber = i, pageSize = ViewData["Pagesize"], sortOrder = ViewBag.DateSortParm, searchString = @currentfilter }, new { @class = "btn btn-primary me-1 text-decoration-none " })
+            </li>
+
+        }
+    </ul>
+</nav>
+
+@section Scripts {
+    <script>
+
+        $(document).ready(function () {
+            $('#myModal').on('hidden.bs.modal', function () {
+                location.reload();
+            })
+        });
+
+        $('#PageSize').change(function () {
+            var p = $('#PageSize').val();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("SubCategoryList","SubCategory")',
+                data: { pageSize: p },
+                success: function (responce) {
+                    $('body').html(responce);
+                    $('#PageSize').val(p);
+                }
+            });
+        })
+
+    </script>
+    }
